@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JComponent;
@@ -26,7 +27,7 @@ import javax.swing.Timer;
  *
  * @author workshopjan23
  */
-public class FloatingIce extends JComponent  implements KeyListener{
+public class FloatingIce extends JComponent  implements KeyListener, ActionListener{
     
     private Image Submarine;
     private Image Iceberg;
@@ -43,6 +44,11 @@ public class FloatingIce extends JComponent  implements KeyListener{
     
     private int windowHeight=1000;
     private int windowWidth=1000;
+    
+    private int iceSpeed=25;
+    private Random r = new Random();
+    
+    private boolean gone=false;
     
     public FloatingIce () throws IOException
             
@@ -71,6 +77,9 @@ public class FloatingIce extends JComponent  implements KeyListener{
         
         window.setBackground(Color.gray);
         
+         Timer t = new Timer (100,game);
+        t.start();
+        
      
         
     }
@@ -86,13 +95,13 @@ public class FloatingIce extends JComponent  implements KeyListener{
     {
         if (ke.getKeyCode()==KeyEvent.VK_DOWN)
         {
-           subTop=subTop=50; 
+           subTop=subTop+50; 
             
             
         }
         if (ke.getKeyCode()==KeyEvent.VK_UP)
         {
-          subTop=Math.max(40, subTop-50);
+          subTop=Math.max(100, subTop-50);
         }
         if (ke.getKeyCode()==KeyEvent.VK_LEFT)
         {subLeft = subLeft - 50;
@@ -110,6 +119,15 @@ public class FloatingIce extends JComponent  implements KeyListener{
      g.fillRect(0, 100, 1000, 1000);
      g.drawImage(Submarine, subLeft, subTop, subWidth, subHeight, this);
      g.drawImage(Iceberg, iceLeft, iceTop, iceWidth, iceHeight, this);
+     
+     if (gone==true)
+     {
+         g.setColor(Color.black);
+         g.fillRect(0, 0, windowWidth, windowHeight);
+         
+         
+     }
+     
 
      
     }
@@ -123,4 +141,28 @@ public class FloatingIce extends JComponent  implements KeyListener{
     public void keyReleased(KeyEvent ke) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public void actionPerformed(ActionEvent ae) 
+    {
+        iceLeft -= iceSpeed;
+        if(iceLeft+iceWidth<0)
+        {
+            iceLeft= windowWidth + r.nextInt(500); 
+            iceSpeed= 15+ r.nextInt(60);
+            iceWidth= 150 + 2*r.nextInt(150);
+            iceHeight= 205 + 2*r.nextInt(205);
+        }
+        
+        if(subLeft+subWidth<iceLeft&&
+           iceLeft+ iceWidth<subLeft&&
+           subTop + subHeight< iceTop&&
+           iceTop+iceHeight<subTop)
+        {
+            gone=true;
+        }
+       
+        repaint();
+    }
+    
 }
